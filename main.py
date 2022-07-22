@@ -1,3 +1,4 @@
+from genericpath import isfile
 import os
 import io
 import discord
@@ -41,11 +42,56 @@ collections = ['ape', 'dtp', 'egg']
 
 # Functions
 
-def get_daa_image(pfp_id):
-  url = ('https://degenape.nyc3.digitaloceanspaces.com/apes/no-head-traits/' + str(pfp_id) + '.png')
+def get_daa_image(pfp_id, type='no-head-traits'):
+  url = ('https://degenape.nyc3.digitaloceanspaces.com/apes/'+ type +'/' + str(pfp_id) + '.png')
   save_image_file_path = ('collections/ape/clean_pfps/' + str(pfp_id) + '.png') 
 
-  download_image(url, save_image_file_path)
+  if os.path.isfile(save_image_file_path):
+    pprint('no double call needed')
+    return save_image_file_path
+  else:
+    pprint('grabed the new img')
+    download_image(url, save_image_file_path)
+    return save_image_file_path
+
+def get_background_color(collection, pfp_id):
+  search_value = {
+    'ape': {
+      'project_id': 'degenape',
+      'search_value': 'Degen Ape #',
+    },
+    'dtp': {
+      'project_id': 'degentrashpandas',
+      'search_value': 'Degen Trash Panda #',
+    },
+    'egg': {
+      'project_id': 'degenerateapekindergarten',
+      'search_value': 'Degen Egg #',
+    },
+  }
+
+  payload = json.dumps({
+        'condition': {
+            'project_ids': [
+                {
+                    'project_id': search_value[collection]['project_id']
+                }
+            ],
+            'name': {
+                'operation': 'EXACT', 
+                'value': search_value[collection]['search_value'] + str(pfp_id)
+                },
+        }
+    })
+  headers = {
+      'Authorization': os.environ['HYPER_TOKEN'],
+      'Content-Type': 'application/json'
+  }
+  r = requests.post('https://beta.api.solanalysis.com/rest/get-market-place-snapshots', headers=headers, data=payload)
+  
+  background = r.json()['market_place_snapshots'][0]['attributes']['Background']
+
+  return background
 
 def get_collection_image(collection, pfp_id):
   search_value = {
@@ -84,13 +130,24 @@ def get_collection_image(collection, pfp_id):
 
   download_image(url, save_image_file_path)
 
-def download_image(url, image_file_path):
-    r = requests.get(url, timeout=4.0)
-    if r.status_code != requests.codes.ok:
-        assert False, 'Status code error: {}.'.format(r.status_code)
+def make_wallpaper(collection, pfp_id, img_path):
+  save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_wallpaper.png')
+  pfp = Image.open(img_path)
+  bg_color = get_background_color(collection, pfp_id)
+  bg = Image.open('collections/ape/wallpaper/'+bg_color+'.png')
+  new_pfp = pfp.resize((390,390))
+  bg.paste(new_pfp, (0, 454), mask=new_pfp)
+  bg.save(save_file_path)
 
-    with Image.open(io.BytesIO(r.content)) as im:
-        im.save(image_file_path)
+  return save_file_path
+
+def download_image(url, image_file_path):
+  r = requests.get(url, timeout=4.0)
+  if r.status_code != requests.codes.ok:
+      assert False, 'Status code error: {}.'.format(r.status_code)
+
+  with Image.open(io.BytesIO(r.content)) as im:
+      im.save(image_file_path)
 
 def combine_images(collection, outfit, fit, pfp_id):
   save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_' + outfit + '_' + fit + '.png')
@@ -111,20 +168,32 @@ async def gib(ctx, collection: str, pfp_id: int, campaign: str, fit: typing.Opti
   outfit = campaign
   collection = collection.lower()
 
-  try:
-    if collection in collections:
+  if campaign == 'wallpaper':
+    try:
       if collection == 'ape':
-        get_daa_image(pfp_id)
+        img_path = get_daa_image(pfp_id, 'no-background')
+        save_file_path = make_wallpaper(collection, pfp_id, img_path)
+
+        await ctx.send(file=discord.File(save_file_path))
       else:
-        get_collection_image(collection, pfp_id)
-    else: 
-      await ctx.send('Please enter a valid collection. ape / dtp / egg')
+        await ctx.send('Please enter a valid collection. `ape`')
+    except:
+        await ctx.send('Please enter a valid collection. `ape`')
+  else:
+    try:
+      if collection in collections:
+        if collection == 'ape':
+          get_daa_image(pfp_id)
+        else:
+          get_collection_image(collection, pfp_id)
+      else: 
+        await ctx.send('Please enter a valid collection. ape / dtp / egg')
 
-    save_file_path = combine_images(collection, outfit, fit, pfp_id)
+      save_file_path = combine_images(collection, outfit, fit, pfp_id)
 
-    await ctx.send(file=discord.File(save_file_path))
-  except:
-    await ctx.send('Please enter valid options for your request.\n\nTry `!gib-help` for more info')
+      await ctx.send(file=discord.File(save_file_path))
+    except:
+      await ctx.send('Please enter valid options for your request.\n\nTry `!gib-help` for more info')
 
 
 @bot.command(name='gib-help', brief='List avaiable fits', description='This command will list the different outfits available to you')
