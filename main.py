@@ -47,10 +47,8 @@ def get_daa_image(pfp_id, type='no-head-traits'):
   save_image_file_path = ('collections/ape/clean_pfps/' + str(pfp_id) + '.png') 
 
   if os.path.isfile(save_image_file_path):
-    pprint('no double call needed')
     return save_image_file_path
   else:
-    pprint('grabed the new img')
     download_image(url, save_image_file_path)
     return save_image_file_path
 
