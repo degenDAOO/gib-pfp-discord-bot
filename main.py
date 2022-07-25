@@ -31,8 +31,9 @@ async def on_ready():
 
 # Current Campaigns
 # - Bussin
-# - Cap
+# - Solcap/Solsnap
 # - Beer
+# - Wallpaper
 #
 # Archive Campaigns
 # - Seven
@@ -215,6 +216,7 @@ async def gib_help(ctx):
 !gib [collection] [id] [campaign] [variant]
 !gib [ape/dtp/egg] [123] [solcap/solsnap/bussin/beer] [black/blue/red/white... etc]
 
+!gib ape 123 wallpaper
 !gib ape 123 solcap
 !gib ape 123 bussin blue
 !gib dtp 456 solsnap 
@@ -238,6 +240,9 @@ async def gib_help(ctx):
 
 **solsnap**
 *collections:* `ape`, `dtp`
+
+**wallpaper**
+*collections:* `ape`
     """
     await ctx.send(message)
 
