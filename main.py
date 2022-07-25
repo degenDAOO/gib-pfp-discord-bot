@@ -44,8 +44,8 @@ collections = ['ape', 'dtp', 'egg']
 
 def get_daa_image(pfp_id, type='no-head-traits'):
   url = ('https://degenape.nyc3.digitaloceanspaces.com/apes/'+ type +'/' + str(pfp_id) + '.png')
-  save_image_file_path = ('collections/ape/clean_pfps/' + str(pfp_id) + '.png') 
-
+  save_image_file_path = ('collections/ape/clean_pfps/' + type +'/' + str(pfp_id) + '.png') 
+  
   if os.path.isfile(save_image_file_path):
     return save_image_file_path
   else:
@@ -93,6 +93,10 @@ def get_background_color(collection, pfp_id):
 
 def get_collection_image(collection, pfp_id):
   search_value = {
+    'ape': {
+      'project_id': 'degenape',
+      'search_value': 'Degen Ape #',
+    },
     'dtp': {
       'project_id': 'degentrashpandas',
       'search_value': 'Degen Trash Panda #',
@@ -128,16 +132,7 @@ def get_collection_image(collection, pfp_id):
 
   download_image(url, save_image_file_path)
 
-def make_wallpaper(collection, pfp_id, img_path):
-  save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_wallpaper.png')
-  pfp = Image.open(img_path)
-  bg_color = get_background_color(collection, pfp_id)
-  bg = Image.open('collections/ape/wallpaper/'+bg_color+'.png')
-  new_pfp = pfp.resize((390,390))
-  bg.paste(new_pfp, (0, 454), mask=new_pfp)
-  bg.save(save_file_path)
-
-  return save_file_path
+  return save_image_file_path
 
 def download_image(url, image_file_path):
   r = requests.get(url, timeout=4.0)
@@ -147,17 +142,32 @@ def download_image(url, image_file_path):
   with Image.open(io.BytesIO(r.content)) as im:
       im.save(image_file_path)
 
-def combine_images(collection, outfit, fit, pfp_id):
-  save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_' + outfit + '_' + fit + '.png')
-
-  pfp = Image.open('collections/' + collection + '/clean_pfps/' + str(pfp_id) + '.png')
-  outfit = Image.open('collections/' + collection + '/outfits/' + outfit + '/' + fit + '.png')
+def combine_images(clean_image_file_path, outfit_file_path, save_file_path):
+  pfp = Image.open(clean_image_file_path)
+  outfit = Image.open(outfit_file_path)
 
   # Better blending method
   dressed = Image.new("RGBA", pfp.size)
   dressed = Image.alpha_composite(dressed, pfp)
   dressed = Image.alpha_composite(dressed, outfit)
   dressed.save(save_file_path)
+
+  return save_file_path
+
+def make_wallpaper(collection, pfp_id, clean_image_file_path):
+  save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_wallpaper.png')
+  bg_color = get_background_color(collection, pfp_id)
+  bg = Image.open('collections/ape/outfits/wallpaper/'+bg_color+'.png')
+
+  pfp = Image.open(clean_image_file_path)
+  pfp = pfp.resize((780,780))
+  new_pfp = Image.new("RGBA", bg.size)
+  new_pfp.paste(pfp, (0, 908), mask=pfp)
+  
+  wallpaper = Image.new("RGBA", bg.size)
+  wallpaper = Image.alpha_composite(wallpaper, bg)
+  wallpaper = Image.alpha_composite(wallpaper, new_pfp)
+  wallpaper.save(save_file_path)
 
   return save_file_path
 
@@ -169,10 +179,10 @@ async def gib(ctx, collection: str, pfp_id: int, campaign: str, fit: typing.Opti
   if campaign == 'wallpaper':
     try:
       if collection == 'ape':
-        img_path = get_daa_image(pfp_id, 'no-background')
-        save_file_path = make_wallpaper(collection, pfp_id, img_path)
+        clean_image_file_path = get_daa_image(pfp_id, 'no-background')
+        dressed_file_path = make_wallpaper(collection, pfp_id, clean_image_file_path)
 
-        await ctx.send(file=discord.File(save_file_path))
+        await ctx.send(file=discord.File(dressed_file_path))
       else:
         await ctx.send('Please enter a valid collection. `ape`')
     except:
@@ -181,15 +191,18 @@ async def gib(ctx, collection: str, pfp_id: int, campaign: str, fit: typing.Opti
     try:
       if collection in collections:
         if collection == 'ape':
-          get_daa_image(pfp_id)
+          clean_image_file_path = get_daa_image(pfp_id)
         else:
-          get_collection_image(collection, pfp_id)
+          clean_image_file_path = get_collection_image(collection, pfp_id)
+        
+        save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_' + outfit + '_' + fit + '.png')
+        outfit_file_path = 'collections/' + collection + '/outfits/' + outfit + '/' + fit + '.png'
+
+        dressed_file_path = combine_images(clean_image_file_path, outfit_file_path, save_file_path)
+
+        await ctx.send(file=discord.File(dressed_file_path))
       else: 
         await ctx.send('Please enter a valid collection. ape / dtp / egg')
-
-      save_file_path = combine_images(collection, outfit, fit, pfp_id)
-
-      await ctx.send(file=discord.File(save_file_path))
     except:
       await ctx.send('Please enter valid options for your request.\n\nTry `!gib-help` for more info')
 
