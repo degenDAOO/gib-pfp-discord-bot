@@ -187,7 +187,7 @@ async def gib(ctx, collection: str, pfp_id: int, campaign: str, fit: typing.Opti
       else:
         await ctx.send('Please enter a valid collection. `ape`')
     except:
-        await ctx.send('Please enter a valid collection. `ape`')
+        await ctx.send('Mhmmm something went wrong\n\nTry `!gib-help` for more info')
   else:
     try:
       if collection in collections:
