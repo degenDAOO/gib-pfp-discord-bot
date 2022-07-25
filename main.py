@@ -45,6 +45,7 @@ collections = ['ape', 'dtp', 'egg']
 
 def get_daa_image(pfp_id, type='no-head-traits'):
   url = ('https://degenape.nyc3.digitaloceanspaces.com/apes/'+ type +'/' + str(pfp_id) + '.png')
+  print(url)
   save_image_file_path = ('collections/ape/clean_pfps/' + type +'/' + str(pfp_id) + '.png') 
   
   if os.path.isfile(save_image_file_path):
@@ -158,7 +159,7 @@ def combine_images(clean_image_file_path, outfit_file_path, save_file_path):
 def make_wallpaper(collection, pfp_id, clean_image_file_path):
   save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_wallpaper.png')
   bg_color = get_background_color(collection, pfp_id)
-  bg = Image.open('collections/ape/outfits/wallpaper/'+bg_color+'.png')
+  bg = Image.open('collections/ape/outfits/wallpaper/'+bg_color.lower()+'.png')
 
   pfp = Image.open(clean_image_file_path)
   pfp = pfp.resize((780,780))
