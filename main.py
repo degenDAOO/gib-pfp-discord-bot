@@ -45,7 +45,6 @@ collections = ['ape', 'dtp', 'egg']
 
 def get_daa_image(pfp_id, type='no-head-traits'):
   url = ('https://degenape.nyc3.digitaloceanspaces.com/apes/'+ type +'/' + str(pfp_id) + '.png')
-  print(url)
   save_image_file_path = ('collections/ape/clean_pfps/' + type +'/' + str(pfp_id) + '.png') 
   
   if os.path.isfile(save_image_file_path):
