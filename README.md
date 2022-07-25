@@ -1,3 +1,5 @@
+![GitHub - pfp-bot - social](https://user-images.githubusercontent.com/4450975/180466689-ffe8b63e-cdcc-4e2d-a115-611cdbac10aa.jpg)
+
 # Discord Bot for Creating Degeniverse Promo PFPs
 
 We originally forked the [MonkeyDAO Discord Bot](https://github.com/0xbagp/new-fit-for-your-pfp---discord-bot) to help promote various marketing efforts by adding custom traits to your DAA / DTP / DEGG pfp. Over time it was re-written to suit our needs and make it easier to roll out new campaigns with ease, and changed enough to deserve its own repo. 
