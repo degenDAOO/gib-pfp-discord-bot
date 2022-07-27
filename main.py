@@ -44,8 +44,8 @@ collections = ['ape', 'dtp', 'egg']
 # Functions
 
 def get_daa_image(pfp_id, type='no-head-traits'):
-    url = f'https://degenape.nyc3.digitaloceanspaces.com/apes/{type}/{str(pfp_id)}.png'
-    save_image_file_path = f'collections/ape/clean_pfps/{type}/{str(pfp_id)}.png'
+    url = f'https://degenape.nyc3.digitaloceanspaces.com/apes/{type}/{pfp_id}.png'
+    save_image_file_path = f'collections/ape/clean_pfps/{type}/{pfp_id}.png'
 
     if os.path.isfile(save_image_file_path):
         return save_image_file_path
@@ -79,7 +79,7 @@ def get_background_color(collection, pfp_id):
             ],
             'name': {
                 'operation': 'EXACT',
-                'value': search_value[collection]['search_value'] + str(pfp_id)
+                'value': f'{search_value[collection]["search_value"]}{pfp_id}'
             },
         }
     })
@@ -119,7 +119,7 @@ def get_collection_image(collection, pfp_id):
             ],
             'name': {
                 'operation': 'EXACT',
-                'value': search_value[collection]['search_value'] + str(pfp_id)
+                'value': f'{search_value[collection]["search_value"]}{pfp_id}'
             },
         }
     })
@@ -131,7 +131,7 @@ def get_collection_image(collection, pfp_id):
 
     url = r.json()['market_place_snapshots'][0]['meta_data_img']
 
-    save_image_file_path = f'collections/{collection}/clean_pfps/{str(pfp_id)}.png'
+    save_image_file_path = f'collections/{collection}/clean_pfps/{pfp_id}.png'
 
     download_image(url, save_image_file_path)
 
@@ -141,7 +141,7 @@ def get_collection_image(collection, pfp_id):
 def download_image(url, image_file_path):
     r = requests.get(url, timeout=4.0)
     if r.status_code != requests.codes.ok:
-        assert False, 'Status code error: {}.'.format(r.status_code)
+        assert False, f'Status code error: {r.status_code}.'
 
     with Image.open(io.BytesIO(r.content)) as im:
         im.save(image_file_path)
@@ -160,33 +160,22 @@ def combine_images(clean_image_file_path, outfit_file_path, save_file_path):
     return save_file_path
 
 
-def make_wallpaper(collection, pfp_id, clean_image_file_path):
-    save_file_path = f'collections/{collection}/dressed_pfps/{str(pfp_id)}_wallpaper.png'
+def make_image(collection, pfp_id, clean_image_file_path, campaign):
+    if campaign == 'wallpaper':
+        resize = 780
+        paste_x = 0
+        paste_y = 908
+    elif campaign == 'banner':
+        resize = 800
+        paste_x = 2000
+        paste_y = 200
+    save_file_path = f'collections/{collection}/dressed_pfps/{pfp_id}_{campaign}.png'
     bg_color = get_background_color(collection, pfp_id)
-    bg = Image.open('collections/ape/outfits/wallpaper/' + bg_color.lower() + '.png')
-
+    bg = Image.open(f'collections/ape/outfits/{campaign}/{bg_color.lower()}.png')
     pfp = Image.open(clean_image_file_path)
-    pfp = pfp.resize((780, 780))
+    pfp = pfp.resize((resize, resize))
     new_pfp = Image.new("RGBA", bg.size)
-    new_pfp.paste(pfp, (0, 908), mask=pfp)
-
-    wallpaper = Image.new("RGBA", bg.size)
-    wallpaper = Image.alpha_composite(wallpaper, bg)
-    wallpaper = Image.alpha_composite(wallpaper, new_pfp)
-    wallpaper.save(save_file_path)
-
-    return save_file_path
-
-
-def make_tw_banner(collection, pfp_id, clean_image_file_path):
-    save_file_path = f'collections/{collection}/dressed_pfps/{str(pfp_id)}_banner.png'
-    bg_color = get_background_color(collection, pfp_id)
-    bg = Image.open('collections/ape/outfits/tw-banner/' + bg_color.lower() + '.png')
-
-    pfp = Image.open(clean_image_file_path)
-    pfp = pfp.resize((800, 800))
-    new_pfp = Image.new("RGBA", bg.size)
-    new_pfp.paste(pfp, (2000, 200), mask=pfp)
+    new_pfp.paste(pfp, (paste_x, paste_y), mask=pfp)
 
     wallpaper = Image.new("RGBA", bg.size)
     wallpaper = Image.alpha_composite(wallpaper, bg)
@@ -202,22 +191,11 @@ async def gib(ctx, collection: str, pfp_id: int, campaign: str, fit: typing.Opti
     outfit = campaign
     collection = collection.lower()
 
-    if campaign == 'wallpaper':
+    if campaign == 'wallpaper' or campaign == 'banner':
         try:
             if collection == 'ape':
                 clean_image_file_path = get_daa_image(pfp_id, 'no-background')
-                dressed_file_path = make_wallpaper(collection, pfp_id, clean_image_file_path)
-
-                await ctx.send(file=discord.File(dressed_file_path))
-            else:
-                await ctx.send('Please enter a valid collection. `ape`')
-        except:
-            await ctx.send('Mhmmm something went wrong\n\nTry `!gib-help` for more info')
-    elif campaign == 'banner':
-        try:
-            if collection == 'ape':
-                clean_image_file_path = get_daa_image(pfp_id, 'no-background')
-                dressed_file_path = make_tw_banner(collection, pfp_id, clean_image_file_path)
+                dressed_file_path = make_image(collection, pfp_id, clean_image_file_path, campaign)
 
                 await ctx.send(file=discord.File(dressed_file_path))
             else:
@@ -232,7 +210,7 @@ async def gib(ctx, collection: str, pfp_id: int, campaign: str, fit: typing.Opti
                 else:
                     clean_image_file_path = get_collection_image(collection, pfp_id)
 
-                save_file_path = f'collections/{collection}/dressed_pfps/{str(pfp_id)}_{outfit}_{fit}.png'
+                save_file_path = f'collections/{collection}/dressed_pfps/{pfp_id}_{outfit}_{fit}.png'
                 outfit_file_path = f'collections/{collection}/outfits/{outfit}/{fit}.png'
 
                 dressed_file_path = combine_images(clean_image_file_path, outfit_file_path, save_file_path)
