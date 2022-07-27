@@ -184,9 +184,9 @@ def make_tw_banner(collection, pfp_id, clean_image_file_path):
     bg = Image.open('collections/ape/outfits/tw-banner/' + bg_color.lower() + '.png')
 
     pfp = Image.open(clean_image_file_path)
-    pfp = pfp.resize((400, 400))
+    pfp = pfp.resize((800, 800))
     new_pfp = Image.new("RGBA", bg.size)
-    new_pfp.paste(pfp, (1000, 100), mask=pfp)
+    new_pfp.paste(pfp, (2000, 200), mask=pfp)
 
     wallpaper = Image.new("RGBA", bg.size)
     wallpaper = Image.alpha_composite(wallpaper, bg)
