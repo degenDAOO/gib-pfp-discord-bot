@@ -282,6 +282,9 @@ async def gib_help(ctx):
 
 **wallpaper**
 *collections:* `ape`
+
+**banner**
+*collections:* `ape`
     """
     await ctx.send(message)
 
