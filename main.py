@@ -179,7 +179,7 @@ def make_wallpaper(collection, pfp_id, clean_image_file_path):
 
 
 def make_tw_banner(collection, pfp_id, clean_image_file_path):
-    save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_wallpaper.png')
+    save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_banner.png')
     bg_color = get_background_color(collection, pfp_id)
     bg = Image.open('collections/ape/outfits/tw-banner/' + bg_color.lower() + '.png')
 
