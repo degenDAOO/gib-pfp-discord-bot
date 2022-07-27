@@ -44,8 +44,8 @@ collections = ['ape', 'dtp', 'egg']
 # Functions
 
 def get_daa_image(pfp_id, type='no-head-traits'):
-    url = ('https://degenape.nyc3.digitaloceanspaces.com/apes/' + type + '/' + str(pfp_id) + '.png')
-    save_image_file_path = ('collections/ape/clean_pfps/' + type + '/' + str(pfp_id) + '.png')
+    url = f'https://degenape.nyc3.digitaloceanspaces.com/apes/{type}/{str(pfp_id)}.png'
+    save_image_file_path = f'collections/ape/clean_pfps/{type}/{str(pfp_id)}.png'
 
     if os.path.isfile(save_image_file_path):
         return save_image_file_path
@@ -131,7 +131,7 @@ def get_collection_image(collection, pfp_id):
 
     url = r.json()['market_place_snapshots'][0]['meta_data_img']
 
-    save_image_file_path = ('collections/' + collection + '/clean_pfps/' + str(pfp_id) + '.png')
+    save_image_file_path = f'collections/{collection}/clean_pfps/{str(pfp_id)}.png'
 
     download_image(url, save_image_file_path)
 
@@ -161,7 +161,7 @@ def combine_images(clean_image_file_path, outfit_file_path, save_file_path):
 
 
 def make_wallpaper(collection, pfp_id, clean_image_file_path):
-    save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_wallpaper.png')
+    save_file_path = f'collections/{collection}/dressed_pfps/{str(pfp_id)}_wallpaper.png'
     bg_color = get_background_color(collection, pfp_id)
     bg = Image.open('collections/ape/outfits/wallpaper/' + bg_color.lower() + '.png')
 
@@ -179,7 +179,7 @@ def make_wallpaper(collection, pfp_id, clean_image_file_path):
 
 
 def make_tw_banner(collection, pfp_id, clean_image_file_path):
-    save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(pfp_id) + '_banner.png')
+    save_file_path = f'collections/{collection}/dressed_pfps/{str(pfp_id)}_banner.png'
     bg_color = get_background_color(collection, pfp_id)
     bg = Image.open('collections/ape/outfits/tw-banner/' + bg_color.lower() + '.png')
 
@@ -232,9 +232,8 @@ async def gib(ctx, collection: str, pfp_id: int, campaign: str, fit: typing.Opti
                 else:
                     clean_image_file_path = get_collection_image(collection, pfp_id)
 
-                save_file_path = ('collections/' + collection + '/dressed_pfps/' + str(
-                    pfp_id) + '_' + outfit + '_' + fit + '.png')
-                outfit_file_path = 'collections/' + collection + '/outfits/' + outfit + '/' + fit + '.png'
+                save_file_path = f'collections/{collection}/dressed_pfps/{str(pfp_id)}_{outfit}_{fit}.png'
+                outfit_file_path = f'collections/{collection}/outfits/{outfit}/{fit}.png'
 
                 dressed_file_path = combine_images(clean_image_file_path, outfit_file_path, save_file_path)
 
