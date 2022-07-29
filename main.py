@@ -53,8 +53,7 @@ def get_daa_image(pfp_id, type='no-head-traits'):
         download_image(url, save_image_file_path)
         return save_image_file_path
 
-
-def get_background_color(collection, pfp_id):
+def get_hyperspace_data(collection, pfp_id):
     search_value = {
         'ape': {
             'project_id': 'degenape',
@@ -87,56 +86,23 @@ def get_background_color(collection, pfp_id):
         'Authorization': os.environ['HYPER_TOKEN'],
         'Content-Type': 'application/json'
     }
-    r = requests.post('https://beta.api.solanalysis.com/rest/get-market-place-snapshots', headers=headers, data=payload)
 
+    return requests.post('https://beta.api.solanalysis.com/rest/get-market-place-snapshots', headers=headers, data=payload)
+
+def get_background_color(collection, pfp_id):
+    r = get_hyperspace_data(collection, pfp_id)
     background = r.json()['market_place_snapshots'][0]['attributes']['Background']
 
     return background
 
-
 def get_collection_image(collection, pfp_id):
-    search_value = {
-        'ape': {
-            'project_id': 'degenape',
-            'search_value': 'Degen Ape #',
-        },
-        'dtp': {
-            'project_id': 'degentrashpandas',
-            'search_value': 'Degen Trash Panda #',
-        },
-        'egg': {
-            'project_id': 'degenerateapekindergarten',
-            'search_value': 'Degen Egg #',
-        },
-    }
-
-    payload = json.dumps({
-        'condition': {
-            'project_ids': [
-                {
-                    'project_id': search_value[collection]['project_id']
-                }
-            ],
-            'name': {
-                'operation': 'EXACT',
-                'value': f'{search_value[collection]["search_value"]}{pfp_id}'
-            },
-        }
-    })
-    headers = {
-        'Authorization': os.environ['HYPER_TOKEN'],
-        'Content-Type': 'application/json'
-    }
-    r = requests.post('https://beta.api.solanalysis.com/rest/get-market-place-snapshots', headers=headers, data=payload)
-
+    r = get_hyperspace_data(collection, pfp_id)
     url = r.json()['market_place_snapshots'][0]['meta_data_img']
-
     save_image_file_path = f'collections/{collection}/clean_pfps/{pfp_id}.png'
 
     download_image(url, save_image_file_path)
 
     return save_image_file_path
-
 
 def download_image(url, image_file_path):
     r = requests.get(url, timeout=4.0)
