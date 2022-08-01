@@ -197,6 +197,7 @@ async def gib_help(ctx):
 !gib [collection] [id] [campaign] [variant]
 !gib [ape/dtp/egg] [123] [solcap/solsnap/bussin/beer] [black/blue/red/white... etc]
 
+!gib ape 123 eye
 !gib ape 123 wallpaper
 !gib ape 123 banner
 !gib ape 123 solcap
@@ -208,6 +209,9 @@ async def gib_help(ctx):
 ==========================
 
 **What I Can Gib**
+
+**Eye**
+*collections:* `ape`
 
 **Beer**
 *collections:* `ape`, `dtp`,`egg`
