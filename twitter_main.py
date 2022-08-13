@@ -172,11 +172,9 @@ class TweetStreamerV2(StreamingClient):
     def on_tweet(self, tweet):
         """
         All tweets that streamer catch comes here.
-        Split the tweet text to decide what bot will do.
         """
         try:
-            print(f"{tweet.id} {tweet.created_at} ({tweet.author_id}): {tweet.text}")
-            print("-" * 50)
+            # get text from tweet
             tweet_text = tweet.text
 
             # lower case all tweet
