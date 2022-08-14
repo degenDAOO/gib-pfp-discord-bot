@@ -157,7 +157,7 @@ async def gib(ctx, collection: str, pfp_id: int, campaign: str, fit: typing.Opti
     outfit = campaign
     collection = collection.lower()
 
-    if campaign == 'wallpaper' or campaign == 'banner':
+    if campaign in ['wallpaper', 'banner']:
         try:
             if collection == 'ape':
                 clean_image_file_path = get_daa_image(pfp_id, 'no-background')
