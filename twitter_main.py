@@ -12,6 +12,11 @@ auth.set_access_token(os.getenv('access-token'), os.getenv('access-secret'))
 twitter_api = API(auth, wait_on_rate_limit=True, retry_count=2, retry_delay=2)
 bearer_token = os.getenv('bearer-token')
 
+# list of campaign
+banner_wallpaper_campaign = ['wallpaper', 'banner']
+head_default_campaign = ['eye', 'solcap', 'solsnap', 'beer']
+head_choose_campaign = ['bussin']
+
 
 def create_send_tweet(collection, pfp_id, campaign, extra, reply_to):
     """
@@ -28,11 +33,11 @@ def create_send_tweet(collection, pfp_id, campaign, extra, reply_to):
         reply_to: int
             id of tweet to reply
     """
-    if campaign in ['wallpaper', 'banner']:
+    if campaign in banner_wallpaper_campaign:
         image = make_image(collection, pfp_id, campaign, extra)
-    elif campaign in ['eye', 'solcap', 'solsnap', 'beer']:
+    elif campaign in head_default_campaign:
         image = combine_images(collection, pfp_id, campaign)
-    elif campaign == 'bussin':
+    elif campaign == head_choose_campaign:
         image = combine_images(collection, pfp_id, campaign, extra)
     else:
         reply_tweet(reply_to, 'is_campaign')
